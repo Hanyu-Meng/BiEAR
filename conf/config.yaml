@@ -1,0 +1,621 @@
+# DeepEar Training Configuration
+
+# Data paths
+ROOT: "/media/mengh/SharedData/hanyu/DeepEar/anechoic_dataset"
+
+# Training parameters
+BATCH_SIZE: 64
+EPOCHS: 150
+
+# Model configuration
+USE_CC: true  # Use cross-correlation features
+Active: true  # Active=False -> passive model (uses precomputed features in H5)
+              # Active=True  -> waveform -> (bi)filterbank -> network
+
+# Frontend configuration
+FIXED_FRONTEND_Q: false  # Fixed front-end (Q always equals Q0, no adaptation)
+Controller_Mode: "dual"  # Dual-only now (single removed)
+
+# Optimization parameters
+WEIGHT_DECAY: 1.0e-5
+GRAD_CLIP_NORM: 3.0
+
+# Active model parameters
+ALPHA: 0  # Feedback alpha for active model (irrelevant when FIXED_FRONTEND_Q=True)
+
+# Learning rates (Joint training LR for param groups)
+LR_FB: 5.0e-5  # 从1e-4降低到5e-5
+LR_BACKEND: 1.0e-4
+
+# Q regularization (optional)
+REG_Q_W: 1.0e-3
+REG_SMOOTH_W: 1.0e-3
+
+# Freeze configuration
+FREEZE_Q_CONTROLLER_ONLY: false  # Freeze only Q-controller (q_rnn + q_out), keep everything else learnable
+                                 # Even if frozen, Q can still vary (depends on inputs). 
+                                 # For truly fixed Q, use FIXED_FRONTEND_Q=True.
+
+# DeltaQ parameters (for absolute mode: Q = Q0 + deltaQ_vec * delta)
+# 
+# 调参建议（详见 HYPERPARAMETER_TUNING_GUIDE.md）:
+# - DELTAQ_BASE: 整体缩放因子，建议范围 [0.2, 1.0]
+#   * 较小值(0.2-0.4): 保守，训练稳定
+#   * 中等值(0.5-0.7): 平衡，推荐起始点
+#   * 较大值(0.8-1.0): 激进，需配合更强的正则化
+#
+# - DELTAQ_LOW_FACTOR: 低频段乘数，建议范围 [0.05, 0.3]
+#   * 较小值(0.05-0.1): 低频变化小，避免 Q 值异常
+#   * 中等值(0.1-0.2): 平衡
+#   * 较大值(0.2-0.3): 低频也能较大变化
+#
+# - DELTAQ_HIGH_FACTOR: 高频段乘数，建议范围 [3.0, 10.0]
+#   * 较小值(3.0-5.0): 保守，训练稳定
+#   * 中等值(5.0-8.0): 平衡，当前使用
+#   * 较大值(8.0-10.0): 高频变化大，需注意稳定性
+#
+# 当前配置效果（Q0范围约1.63-8.81）:
+#   - 低频: Q 变化范围 ±0.05 (约 ±3%)
+#   - 高频: Q 变化范围 ±4.0 (约 ±45%)
+#
+# DELTAQ_MODE: "absolute"
+# DELTAQ_BASE:  1.0     # 建议测试: 0.3, 0.5, 0.7, 1.0
+# DELTAQ_LOW_FACTOR: 0.1   # 建议测试: 0.05, 0.1, 0.15, 0.2
+# DELTAQ_HIGH_FACTOR: 10.0  # 建议测试: 3.0, 5.0, 8.0, 10.0
+
+# Alternative: relative mode (Q = Q0 * (1 + deltaQ_vec * delta))
+# 
+# Relative 模式调参建议（详见 HYPERPARAMETER_TUNING_GUIDE.md）:
+# - DELTAQ_BASE: 通常设为 1.0，通过 LOW/HIGH_FACTOR 控制
+# - DELTAQ_LOW_FACTOR: 低频相对变化百分比，建议范围 [0.2, 0.5]
+#   * 0.2-0.3: 保守，低频变化 ±20-30%
+#   * 0.3-0.4: 平衡，推荐起始点
+#   * 0.4-0.5: 激进，低频变化 ±40-50%（需注意 Q 值不能过小）
+# - DELTAQ_HIGH_FACTOR: 高频相对变化百分比，建议范围 [0.4, 0.8]
+#   * 0.4-0.6: 保守到中等，高频变化 ±40-60%
+#   * 0.6-0.7: 平衡，推荐
+#   * 0.7-0.8: 激进，高频变化 ±70-80%
+#
+# 推荐配置示例:
+# DELTAQ_MODE: "absolute"
+# DELTAQ_BASE: 2.0
+# DELTAQ_LOW_FACTOR: 0.5   # 低频变化 ±30%
+# DELTAQ_HIGH_FACTOR: 5  # 高频变化 ±60%
+DELTAQ_MODE: "relative"
+DELTAQ_BASE: 1.0
+DELTAQ_LOW_FACTOR: 0.3   # 低频变化 ±30%
+DELTAQ_HIGH_FACTOR: 5  # 高频变化 ±60%
+# Loss weights (must sum to 1.0)
+LOSS_WEIGHT_SOUND: 0.2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LOSS_WEIGHT_AOA: 0.45
+LOSS_WEIGHT_DIST: 0.35
+# TensorBoard / Logging parameters
+HIST_EVERY: 50
+MAX_PARAM_LOG: 200
+PRINT_EVERY: 20
+SAVE_EVERY_EPOCH: true
+RUNS_ROOT: "runs_deepear_exps"  # Parent folder for runs
+
+# Experiment comments
+COMMENTS: ""

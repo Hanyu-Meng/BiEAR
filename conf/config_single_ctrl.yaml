@@ -1,0 +1,51 @@
+# DeepEar Training Configuration - SINGLE Controller
+# Single controller: one shared controller drives Q for BOTH ears.
+# Supports DELTAQ_MODE: "absolute" and "relative"
+
+ROOT: "/media/mengh/SharedData/hanyu/DeepEar/anechoic_dataset"
+
+BATCH_SIZE: 64
+EPOCHS: 150
+
+USE_CC: true
+Active: true
+
+# Frontend: single controller
+FIXED_FRONTEND_Q: false
+Controller_Mode: "single"  # single: one controller for both ears
+
+WEIGHT_DECAY: 1.0e-5
+GRAD_CLIP_NORM: 3.0
+
+ALPHA: 0
+
+LR_FB: 5.0e-5
+LR_BACKEND: 1.0e-4
+
+REG_Q_W: 1.0e-3
+REG_SMOOTH_W: 1.0e-3
+
+FREEZE_Q_CONTROLLER_ONLY: false
+
+# DeltaQ: "absolute" (Q = Q0 + deltaQ_vec * delta) or "relative" (Q = Q0 * (1 + deltaQ_vec * delta))
+DELTAQ_MODE: "absolute"
+# DELTAQ_BASE: 1.0
+# DELTAQ_LOW_FACTOR: 0.3
+# DELTAQ_HIGH_FACTOR: 5
+DELTAQ_BASE: 2.0
+DELTAQ_LOW_FACTOR: 0.5   # 低频变化 ±30%
+DELTAQ_HIGH_FACTOR: 5  # 高频变化 ±60%
+
+
+# Loss weights
+LOSS_WEIGHT_SOUND: 0.2
+LOSS_WEIGHT_AOA: 0.45
+LOSS_WEIGHT_DIST: 0.35
+
+HIST_EVERY: 50
+MAX_PARAM_LOG: 200
+PRINT_EVERY: 20
+SAVE_EVERY_EPOCH: true
+RUNS_ROOT: "runs_deepear_exps"
+
+COMMENTS: "single-ctrl"

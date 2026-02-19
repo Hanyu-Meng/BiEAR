@@ -1,0 +1,32 @@
+# AuralNet reproduction with DeepEar's three tasks (sound, AoA, distance per sector)
+# Optional: copy to config_auralnet_deepear.yaml and edit. Script falls back to defaults if missing.
+
+ROOT: "/media/mengh/SharedData/hanyu/DeepEar/anechoic_dataset"
+BATCH_SIZE: 64
+EPOCHS: 100
+USE_CC: true
+
+# Active=true: waveform -> AuralNet front-end. Active=false: precomputed features -> DeepEar backbone.
+Active: true
+
+# AuralNet active front-end signal-processing params (align to DeepEar active defaults)
+# n_bands=100 (same as DeepEar DATA_DIM), timesteps=19, n_fft=1024
+N_BANDS: 100
+TIMESTEPS: 19
+N_FFT: 1024
+HOP_RATIO: 1.0
+# Attention/embedding dim for AuralNet active model
+D_MODEL: 128
+
+WEIGHT_DECAY: 1.0e-5
+GRAD_CLIP_NORM: 3.0
+# Loss weights for DeepEar 3 tasks (建议三者之和=1.0): sound_detection, AoA, distance
+LOSS_WEIGHT_SOUND: 0.33
+LOSS_WEIGHT_AOA: 0.33
+LOSS_WEIGHT_DIST: 0.33
+LR_BACKEND: 1.0e-4
+
+RUNS_ROOT: "runs_auralnet_deepear"
+SAVE_EVERY_EPOCH: true
+PRINT_EVERY: 20
+COMMENTS: ""
