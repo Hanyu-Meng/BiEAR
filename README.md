@@ -1,252 +1,106 @@
+<div align="center">
+
 # BiEAR
 
-**BiEAR: A Human Auditory-Inspired Adaptive Binaural Front-end for Multi-Speaker Localisation and Distance Estimation**
+### A Human Auditory-Inspired Adaptive Binaural Front-end<br>for Multi-Speaker Localisation and Distance Estimation
 
-This repository contains the official implementation of BiEAR submitted to interspeech2026, including binaural data generation, H5 dataset creation, model definition, training, and evaluation.
+**INTERSPEECH 2026**
 
----
+Hanyu Meng · Eliathamby Ambikairajah · Vidhyasaharan Sethu · Qiquan Zhang · Haizhou Li
 
-## Overview
+<sub>UNSW Sydney · Tongyi Speech Lab, Alibaba Group · The Chinese University of Hong Kong, Shenzhen</sub>
 
-BiEAR uses an adaptive binaural front-end (ERB-based gammatone filterbank with learnable Q) and a joint backend for:
+<br><br>
 
-- **Sound presence** per sector  
-- **Angle-of-arrival (AoA)** within sectors  
-- **Distance** estimation (multi-class)
+[**Paper**](https://arxiv.org/abs/2606.06795) &nbsp; / &nbsp;
+[**Getting started**](#getting-started) &nbsp; / &nbsp;
+[**Results**](docs/results.md) &nbsp; / &nbsp;
+[**Citation**](#citation)
 
-Training supports both **passive** (precomputed features from H5) and **active** (raw waveform → front-end → backend) modes, with optional cross-correlation (CC) features and fixed or adaptive Q.
+</div>
 
----
+<br>
 
-## Required datasets
+**BiEAR adapts how it listens.** Inspired by auditory efferent feedback, its binaural front-end adjusts filter selectivity for each ear, frequency band and time frame. A shared prediction network estimates source activity, azimuth and distance for multiple speakers.
 
-Binaural data generation in this repo relies on the **TU Berlin HRIR/BRIR dataset** (KEMAR manikin, SOFA format). You need to obtain the SOFA files and point the scripts to them.
+<p align="center">
+  <img src="docs/assets/architecture.png" alt="BiEAR architecture: independent left and right Q controllers adapt auditory filterbanks; ILD, IPD and waveform cross-correlation feed eight sector prediction networks." width="100%">
+</p>
+<p align="center"><sub>Filter Q adapts to the input during inference. The trained network weights remain fixed.</sub></p>
 
-### TU Berlin KEMAR (SOFA)
+## How it works
 
-The code expects SOFA files from the TU Berlin binaural database:
+- **Adaptive listening.** Ear-specific controllers use current and smoothed subband levels to regulate filter Q, with absolute or relative modulation.
+- **Binaural cues.** Interaural level and phase differences (ILD/IPD) combine with raw-waveform cross-correlation in a 300-dimensional representation.
+- **Spatial prediction.** Eight 45° sectors cover the horizontal plane. Each sector predicts source activity, azimuth and a distance class.
 
-| Script | SOFA file (set `SOFA_FILE` in script) | Description |
-|--------|----------------------------------------|-------------|
-| `generate_anechoic_data.py` | `QU_KEMAR_anechoic.sofa` | Anechoic HRIRs; multiple distances (e.g. 0.5 m, 1 m, 2 m, 3 m). |
-| `generate_auditorium_data.py` | `QU_KEMAR_Auditorium3.sofa` | Room BRIRs (auditorium). |
-| `generate_spirit_data.py` | `QU_KEMAR_spirit.sofa` | BRIRs for Spirit configuration. |
+<details>
+<summary><strong>See how filter Q changes over time</strong></summary>
 
-**Where to get the data**
+<p align="center">
+  <img src="docs/assets/q-adaptation.png" alt="Left and right ear Q trajectories vary across time and frequency; dashed lines show passive Q values." width="100%">
+</p>
 
-- **Anechoic HRIRs (SOFA):** TU Berlin QU KEMAR anechoic data in SOFA format is available from the [SOFA database index](https://sofacoustics.org/data/database/tu-berlin/) (e.g. `qu_kemar_anechoic_0.5m.sofa`, `qu_kemar_anechoic_1m.sofa`, …, or `qu_kemar_anechoic_all.sofa`). You may need to merge or rename files to match the single `QU_KEMAR_anechoic.sofa` path used in the script, or edit the script to load the per-distance files.
-- **Room BRIRs (Auditorium, Spirit):** TU Berlin also provides binaural room impulse responses (e.g. via [DepositOnce](https://depositonce.tu-berlin.de)); check the TU Berlin / SOFA pages for Spirit and Auditorium SOFA files. Place the files in a folder (e.g. `TU_Berlin/`) and set `SOFA_FILE` in each script to the full path.
+Example from the paper presentation. Solid lines show adaptive Q; dashed lines show passive Q. Red, blue and yellow correspond to 159 Hz, 821 Hz and 3.86 kHz. The two ears adapt differently to the same acoustic scene.
 
-If you use the TU Berlin anechoic KEMAR HRIR data, please cite the dataset as given in [References](#references).
+</details>
 
-### Speech corpus (for anechoic data generation)
+## Selected results
 
-`generate_anechoic_data.py` uses a clean-speech corpus for source signals (e.g. **TIMIT**). Set `TIMIT_ROOT` in the script to the path that contains `TRAIN` and `TEST` (or your own corpus layout). You are responsible for obtaining TIMIT or an equivalent corpus and complying with its license.
+**Three unseen speakers in anechoic conditions.** BiEAR uses dual controllers with relative Q modulation. Bold marks the best value in each column.
 
-### Summary
+| Front-end | Detection accuracy ↑ | Azimuth MAE ↓ | Distance accuracy ↑ |
+| :--- | ---: | ---: | ---: |
+| DeepEar | 88.62% | 10.40° | 72.01% |
+| AuralNet | 88.90% | 9.45° | **74.78%** |
+| **BiEAR** | **90.72%** | **8.18°** | 73.65% |
 
-1. Download the TU Berlin SOFA files (anechoic and, if needed, Auditorium/Spirit) and place them in a directory, e.g. `TU_Berlin/`.
-2. In each script under `binaural_data_generation/`, set `SOFA_FILE` to the full path of the corresponding SOFA file (e.g. `.../TU_Berlin/QU_KEMAR_anechoic.sofa`).
-3. For anechoic generation, set `TIMIT_ROOT` and `OUT_ROOT` as needed.
+Across the 12 real-room test conditions, BiEAR achieves the lowest azimuth error in all 12. See [full comparisons, evaluation conditions and room adaptation results](docs/results.md).
 
----
-## Environment
-
-### Requirements
-
-- **Python**: 3.8+
-- **PyTorch**: 1.10+ (with CUDA if you want GPU training)
-- **Other**: See `requirements.txt` for Python dependencies.
-
-### Setup (Conda, recommended)
+## Getting started
 
 ```bash
-# Create and activate environment
-conda create -n biear python=3.10 -y
-conda activate biear
-
-# Install PyTorch (CPU or CUDA; adjust for your driver/CUDA version)
-# CPU only:
-conda install pytorch torchvision torchaudio cpuonly -c pytorch
-# Or with CUDA 11.8:
-# conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
-
-# Install Python dependencies
-pip install -r requirements.txt
+git clone https://github.com/Hanyu-Meng/BiEAR.git
+cd BiEAR
 ```
 
-### Setup (pip only)
+Start with the [setup and reproduction guide](docs/reproduction.md) for dependencies, datasets, H5 formats, training and evaluation. The [configuration reference](docs/configuration.md) explains model variants and experiment settings.
 
-```bash
-python3 -m venv venv
-source venv/bin/activate   # Linux/macOS
-# or: venv\Scripts\activate  # Windows
+> **Release status:** The model, training/evaluation scripts and data-generation code are included. Full reproduction still requires missing helper modules and an aligned H5 preparation pipeline. Read the [current release notes](docs/reproduction.md#current-release-notes) before running an experiment. Datasets and pretrained checkpoints are not bundled.
 
-pip install torch torchvision torchaudio   # add CUDA variant if needed
-pip install -r requirements.txt
+## Code guide
+
+| Entry | Purpose |
+| :--- | :--- |
+| [`model_torch.py`](model_torch.py) | Adaptive filterbanks, binaural encoders and prediction networks |
+| [`train_biear.py`](train_biear.py) / [`train_biear_single_ctrl.py`](train_biear_single_ctrl.py) | Dual-controller and shared-controller training |
+| [`evaluate_biear.py`](evaluate_biear.py) | Overall and per-speaker-count evaluation |
+| [`data.py`](data.py) / [`create_h5_data/`](create_h5_data/) | H5 readers and dataset preparation |
+| [`binaural_data_generation/`](binaural_data_generation/) | TIMIT + KEMAR synthesis for anechoic and real-room scenes |
+| [`conf/`](conf/) | Experiment configurations |
+| [`plots/`](plots/) | Q trajectories, filter responses and feature visualisations |
+
+## Citation
+
+If you use BiEAR in your research, please cite the paper:
+
+```bibtex
+@article{meng2026biear,
+  title   = {{BiEAR}: A Human Auditory-Inspired Adaptive Binaural Front-end
+             for Multi-Speaker Localisation and Distance Estimation},
+  author  = {Meng, Hanyu and Ambikairajah, Eliathamby and Sethu, Vidhyasaharan
+             and Zhang, Qiquan and Li, Haizhou},
+  journal = {arXiv preprint arXiv:2606.06795},
+  year    = {2026},
+  doi     = {10.48550/arXiv.2606.06795},
+  url     = {https://arxiv.org/abs/2606.06795}
+}
 ```
 
-### Main dependencies (from `requirements.txt`)
+Accepted to INTERSPEECH 2026. The citation above links to the public arXiv version.
 
-| Package           | Purpose                    |
-|-------------------|----------------------------|
-| `torch`           | Model and training         |
-| `numpy`, `scipy`  | Numerics and signal        |
-| `h5py`            | H5 dataset I/O            |
-| `PyYAML`          | Config (`conf/config.yaml`)|
-| `tensorboard`     | Training logs              |
-| `soundfile`       | Audio I/O                 |
-| `librosa`         | Audio utilities            |
-| `gammatone`       | Gammatone filterbank       |
-| `pysofaconventions` | SOFA HRIR (data generation) |
-| `tqdm`            | Progress bars              |
+## Acknowledgements
 
-### Development environment (this repo)
+Supported by the Australian Research Council (DP210101228) and a UNSW Sydney PhD scholarship. We thank Qiang Yang for providing the DeepEar training and test data, and ASSTA for the New Researcher Award supporting conference attendance.
 
-The code was developed and tested on this machine using the conda environment **`pytorch_env`**:
-
-- **Python**: 3.11.9  
-- **PyTorch**: 2.7.0+cu128 (CUDA 12.8), with `torchaudio` and `torchvision`  
-- **Other packages**: See `requirements-pytorch_env.txt` for pinned versions used in that env.
-
-To run with the same environment:
-
-```bash
-conda activate pytorch_env
-cd /path/to/BiEAR
-# Ensure data module is on path if needed (e.g. for training)
-export PYTHONPATH="${PYTHONPATH}:$(pwd)/create_h5_data"
-python train_biear.py   # or evaluate_biear.py
-```
-
-To replicate a similar environment from scratch (with CUDA 12.x):
-
-```bash
-conda create -n biear python=3.11 -y
-conda activate biear
-pip install torch torchvision torchaudio  # or install with CUDA from pytorch.org
-pip install -r requirements-pytorch_env.txt
-```
-
----
-
-## Project structure
-
-```
-BiEAR/
-├── conf/
-│   ├── config.yaml              # Main training config
-│   ├── config_single_ctrl.yaml
-│   └── config_auralnet_deepear.yaml
-├── binaural_data_generation/    # Binaural dataset generation
-│   ├── generate_anechoic_data.py
-│   ├── generate_auditorium_data.py
-│   └── generate_spirit_data.py
-├── create_h5_data/              # Build H5 datasets from raw data
-│   ├── data_save.py             # Dataset classes & loading
-│   ├── data_h5_save.py          # H5 writing
-│   ├── precompute_h5.py         # Script to run H5 creation
-│   └── utils_save.py
-├── model_torch.py               # BiEAR model (front-end + backend)
-├── train_biear.py               # Training script
-├── evaluate_biear.py            # Evaluation script
-├── utils.py                     # Gammatone / ERB utilities
-├── requirements.txt            # Minimal deps (no versions)
-├── requirements-pytorch_env.txt  # Pinned versions from pytorch_env
-└── README.md
-```
-
----
-
-## Configuration
-
-Training is driven by **`conf/config.yaml`**. Important fields:
-
-| Key | Description |
-|-----|-------------|
-| `ROOT` | Path to dataset root (e.g. anechoic train/val H5 or raw data parent). |
-| `BATCH_SIZE`, `EPOCHS` | Training schedule. |
-| `Active` | `true`: waveform input; `false`: precomputed features from H5. |
-| `USE_CC` | Use cross-correlation features. |
-| `FIXED_FRONTEND_Q` | `true`: fixed Q; `false`: adaptive Q. |
-| `Controller_Mode` | `"dual"` (or single-controller configs). |
-| `LOSS_WEIGHT_SOUND` / `LOSS_WEIGHT_AOA` / `LOSS_WEIGHT_DIST` | Loss weights (should sum to 1.0). |
-| `RUNS_ROOT` | Parent folder for run directories (checkpoints, TensorBoard, logs). |
-
-Adjust `ROOT` and paths inside the data-generation scripts to match your machine.
-
----
-
-## Data pipeline
-
-### 1. Binaural data generation
-
-Generate binaural (`.npz` + `.wav`) data using SOFA HRIRs and source signals:
-
-- **Anechoic**: `binaural_data_generation/generate_anechoic_data.py`  
-- **Auditorium**: `binaural_data_generation/generate_auditorium_data.py`  
-- **Spirit**: `binaural_data_generation/generate_spirit_data.py`  
-
-Edit the script headers to set:
-
-- `SOFA_FILE`: path to SOFA HRIR (e.g. QU_KEMAR_anechoic.sofa)  
-- `TIMIT_ROOT` / source corpus paths  
-- `OUT_ROOT`: output directory for datasets  
-
-### 2. H5 dataset creation
-
-From a directory of `.npz`/`.wav` samples, build H5 files for training/validation:
-
-```bash
-cd create_h5_data
-# Edit precompute_h5.py: set ROOT and dataset_dir / h5_path
-python precompute_h5.py
-```
-
-This uses `data_save.py` and `data_h5_save.py` to produce H5 files with `x1`, `x2`, `x3`, … and labels `y`.
-
-### 3. Training
-
-Point `conf/config.yaml` at your H5 dataset root (or at the directory containing train/val H5 paths used by your data loader). Then:
-
-```bash
-# From repo root; ensure create_h5_data is on PYTHONPATH if your data module lives there
-export PYTHONPATH="${PYTHONPATH}:$(pwd)/create_h5_data"
-
-python train_biear.py
-```
-
-Checkpoints and TensorBoard logs are written under `RUNS_ROOT` as specified in the config. For **active** (waveform) training, the data module must provide `DeepEarH5Dataset_Active` (waveform samples); for **passive** training, `DeepEarH5Dataset` (precomputed features) is used.
-
-### 4. Evaluation
-
-Set `CHECKPOINT_PATH` in `evaluate_biear.py` to a trained checkpoint (or the run directory that contains `meta/settings.json`). Then:
-
-```bash
-python evaluate_biear.py
-```
-
-Evaluation uses the same config as training when loaded from the checkpoint’s `settings.json` (recommended).
-
----
-
-## Quick start (after environment is ready)
-
-1. **Install environment** (see [Environment](#environment)).  
-2. **Obtain required datasets** (see [Required datasets](#required-datasets)): TU Berlin SOFA files and, for anechoic generation, a speech corpus (e.g. TIMIT).  
-3. **Generate or obtain binaural data** (e.g. anechoic), then **build H5** via `create_h5_data`.  
-4. Set **`ROOT`** and **`RUNS_ROOT`** in `conf/config.yaml`.  
-5. Run **`python train_biear.py`** (with `PYTHONPATH` including `create_h5_data` if needed).  
-6. Run **`python evaluate_biear.py`** with the desired **`CHECKPOINT_PATH`**.
-
----
-
-## References
-
-[1] H. Wierstorf, M. Geier, and S. Spors, “A free database of head-related impulse response measurements in the horizontal plane with multiple distances,” in *130th Convention of the Audio Engineering Society*, 2011. SOFA format: [Zenodo 55418](https://doi.org/10.5281/zenodo.55418); [sofacoustics.org TU Berlin](https://sofacoustics.org/data/database/tu-berlin/).
-
----
-
-## License
-
-See the repository license file (if present). For use of TIMIT, SOFA, or other external data, comply with their respective licenses.
+For questions about the code, please [open an issue](https://github.com/Hanyu-Meng/BiEAR/issues).

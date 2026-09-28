@@ -1,0 +1,16 @@
+# Direct dependencies identified from the checked-in Python imports.
+# This is not a lockfile for the paper's experiment environment.
+# Install the appropriate PyTorch build for your hardware first:
+# https://pytorch.org/get-started/locally/
+torch
+numpy
+scipy
+h5py
+PyYAML
+tensorboard
+soundfile
+librosa
+gammatone
+pysofaconventions
+tqdm
+matplotlib

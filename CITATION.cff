@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+message: "If you use BiEAR in your research, please cite the associated paper."
+type: software
+title: BiEAR
+authors:
+  - family-names: Meng
+    given-names: Hanyu
+  - family-names: Ambikairajah
+    given-names: Eliathamby
+  - family-names: Sethu
+    given-names: Vidhyasaharan
+  - family-names: Zhang
+    given-names: Qiquan
+  - family-names: Li
+    given-names: Haizhou
+repository-code: "https://github.com/Hanyu-Meng/BiEAR"
+url: "https://arxiv.org/abs/2606.06795"
+preferred-citation:
+  type: article
+  title: "BiEAR: A Human Auditory-Inspired Adaptive Binaural Front-end for Multi-Speaker Localisation and Distance Estimation"
+  authors:
+    - family-names: Meng
+      given-names: Hanyu
+    - family-names: Ambikairajah
+      given-names: Eliathamby
+    - family-names: Sethu
+      given-names: Vidhyasaharan
+    - family-names: Zhang
+      given-names: Qiquan
+    - family-names: Li
+      given-names: Haizhou
+  journal: arXiv
+  year: 2026
+  doi: "10.48550/arXiv.2606.06795"
+  url: "https://arxiv.org/abs/2606.06795"

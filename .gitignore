@@ -1,0 +1,33 @@
+# Python environments and caches
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+*.egg-info/
+
+# Local configuration and editor files
+.env
+.env.*
+!.env.example
+.DS_Store
+.vscode/
+.idea/
+
+# Datasets and model weights
+*.h5
+*.hdf5
+*.npz
+*.npy
+*.wav
+*.sofa
+*.pth
+*.pt
+*.ckpt
+
+# Experiment outputs
+runs*/
+outputs/
+events.out.tfevents.*
+*.log
