@@ -2,7 +2,7 @@
 
 [Back to BiEAR](../README.md)
 
-These are reported research results from the [BiEAR paper](https://arxiv.org/abs/2606.06795) and its conference presentation. They are not measurements from a fresh run of this repository.
+These are reported research results from the [BiEAR paper](https://www.isca-archive.org/interspeech_2026/meng26c_interspeech.html) and its conference presentation. They are not measurements from a fresh run of this repository.
 
 ## Anechoic evaluation
 

@@ -11,7 +11,7 @@ Hanyu Meng · Eliathamby Ambikairajah · Vidhyasaharan Sethu · Qiquan Zhang · 
 <sub>UNSW Sydney · Tongyi Speech Lab, Alibaba Group · The Chinese University of Hong Kong, Shenzhen</sub>
 
 
-[**Paper**](https://arxiv.org/abs/2606.06795) &nbsp; / &nbsp;
+[**Paper**](https://www.isca-archive.org/interspeech_2026/meng26c_interspeech.html) &nbsp; / &nbsp;
 [**Getting started**](#getting-started) &nbsp; / &nbsp;
 [**Results**](docs/results.md) &nbsp; / &nbsp;
 [**Citation**](#citation)
@@ -82,19 +82,18 @@ Start with the [setup and reproduction guide](docs/reproduction.md) for dependen
 If you use BiEAR in your research, please cite the paper:
 
 ```bibtex
-@article{meng2026biear,
-  title   = {{BiEAR}: A Human Auditory-Inspired Adaptive Binaural Front-end
-             for Multi-Speaker Localisation and Distance Estimation},
-  author  = {Meng, Hanyu and Ambikairajah, Eliathamby and Sethu, Vidhyasaharan
-             and Zhang, Qiquan and Li, Haizhou},
-  journal = {arXiv preprint arXiv:2606.06795},
-  year    = {2026},
-  doi     = {10.48550/arXiv.2606.06795},
-  url     = {https://arxiv.org/abs/2606.06795}
+@inproceedings{meng26c_interspeech,
+  title     = {{BiEAR: A Human Auditory-Inspired Adaptive Binaural Front-end for Multi-Speaker Localisation and Distance Estimation}},
+  author    = {Hanyu Meng and Eliathamby Ambikairajah and Vidhyasaharan Sethu and Qiquan Zhang and Haizhou Li},
+  year      = {2026},
+  booktitle = {{Interspeech 2026}},
+  pages     = {702--707},
+  doi       = {10.21437/Interspeech.2026-1618},
+  issn      = {2958-1796},
 }
 ```
 
-Accepted to INTERSPEECH 2026. The citation above links to the public arXiv version.
+Published in *Interspeech 2026*, pp. 702–707. [Official proceedings](https://www.isca-archive.org/interspeech_2026/meng26c_interspeech.html).
 
 ## Acknowledgements
 

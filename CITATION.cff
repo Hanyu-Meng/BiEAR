@@ -14,9 +14,9 @@ authors:
   - family-names: Li
     given-names: Haizhou
 repository-code: "https://github.com/Hanyu-Meng/BiEAR"
-url: "https://arxiv.org/abs/2606.06795"
+url: "https://www.isca-archive.org/interspeech_2026/meng26c_interspeech.html"
 preferred-citation:
-  type: article
+  type: conference-paper
   title: "BiEAR: A Human Auditory-Inspired Adaptive Binaural Front-end for Multi-Speaker Localisation and Distance Estimation"
   authors:
     - family-names: Meng
@@ -29,7 +29,10 @@ preferred-citation:
       given-names: Qiquan
     - family-names: Li
       given-names: Haizhou
-  journal: arXiv
+  collection-title: "Interspeech 2026"
+  start: "702"
+  end: "707"
+  issn: "2958-1796"
   year: 2026
-  doi: "10.48550/arXiv.2606.06795"
-  url: "https://arxiv.org/abs/2606.06795"
+  doi: "10.21437/Interspeech.2026-1618"
+  url: "https://www.isca-archive.org/interspeech_2026/meng26c_interspeech.html"
