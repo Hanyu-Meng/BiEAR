@@ -10,7 +10,6 @@ Hanyu Meng · Eliathamby Ambikairajah · Vidhyasaharan Sethu · Qiquan Zhang · 
 
 <sub>UNSW Sydney · Tongyi Speech Lab, Alibaba Group · The Chinese University of Hong Kong, Shenzhen</sub>
 
-<br><br>
 
 [**Paper**](https://arxiv.org/abs/2606.06795) &nbsp; / &nbsp;
 [**Getting started**](#getting-started) &nbsp; / &nbsp;
@@ -18,8 +17,6 @@ Hanyu Meng · Eliathamby Ambikairajah · Vidhyasaharan Sethu · Qiquan Zhang · 
 [**Citation**](#citation)
 
 </div>
-
-<br>
 
 **BiEAR adapts how it listens.** Inspired by auditory efferent feedback, its binaural front-end adjusts filter selectivity for each ear, frequency band and time frame. A shared prediction network estimates source activity, azimuth and distance for multiple speakers.
 
